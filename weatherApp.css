@@ -3,7 +3,13 @@
 }
 body{
     height: 100vh;
-    background-color: rgb(212, 198, 198);
+    background: linear-gradient(to right, 
+  #ffd3e1 0%, 
+  #ffd3e1 48%, 
+  #ffffff 50%, 
+  #c9a0dc 52%, 
+  #c9a0dc 100%
+);
     margin: 0;
     display: flex;
     flex-direction: column;
@@ -13,67 +19,179 @@ body{
 margin: 20px;
 }
 .cityInput{
-padding: 10px;
-font-size: 1rem;
-border: 1px solid;
-border-radius: 10px;
-margin: 10px;
-width: 300;
+  padding: 10px;
+  font-size: 1rem;
+  border: 2px solid rgba(201, 160, 220, 0.5);
+  border-radius: 10px;
+  margin: 10px;
+  width: 300px;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(8px);
+  color: #4a2c5c;
+  outline: none;
+  transition: all 0.3s ease;
 }
-button[type ="submit"]{
-    padding: 10px 20px;
-    font-size: 1rem;
-    background-color: rgb(120, 47, 255);
-    color: whitesmoke;
-    border-radius: 5px;
-    cursor: pointer;
+
+.cityInput::placeholder {
+  color: rgba(107, 77, 122, 0.7);
 }
-button[type ="submit"]:hover{
-    background-color: rgb(132, 0, 255); 
+
+.cityInput:focus {
+  border: 2px solid #c9a0dc;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: 0 4px 15px rgba(201, 160, 220, 0.4);
+}
+
+button[type="submit"]{
+  padding: 10px 20px;
+  font-size: 1rem;
+  background: linear-gradient(135deg, #b388cc 0%, #9d6fb8 100%);
+  color: white;
+  border: none;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  box-shadow: 0 4px 15px rgba(157, 111, 184, 0.4);
+  font-weight: 500;
+}
+
+button[type="submit"]:hover{
+  background: linear-gradient(135deg, #9d6fb8 0%, #8759a3 100%);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(157, 111, 184, 0.5);
 }
 .Card{
 background: rgba(255, 255, 255, 0.15);
 backdrop-filter: blur(15px);
-box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);
-/* background: linear-gradient(180deg, hsl(210, 100%, 75%), hsl(40, 100%, 75%)); */
+box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.15);background: linear-gradient(180deg, 
+  #ffb5a7 0%, 
+  #ff9a8b 100%
+);
+box-shadow: 0 10px 40px rgba(255, 154, 139, 0.4);
+border: 2px solid rgba(255, 181, 167, 0.5);
 padding: 50px;
 border-radius: 8px;
-/* box-shadow: 2px 2px 5px hsla(0,0%,0.5); */
+box-shadow: 2px 2px 5px hsla(0,0%,0.5);
 min-width: 300px;
 display: flex;
 flex-direction: column;
 align-items: center;
 }
-h1{
+h1 {
     font-size: 2.5rem;
     margin-top: 0;
     margin-bottom: 25px;
+    /* Soft dark purple for readability against peach */
+    color: #4a304d; 
 }
-p{
-    font-size: 1.0rem;
+
+p {
+    font-size: 1.1rem;
     margin: 5px 0;
+    color: #5d4a5e;
 }
-.cityDisplay .tempDisplay{
-font-size: 3.5rem;
-font-weight: bold;
-color: hsla(0,0%,0.75);
-margin-bottom: 25px;
-}
-.humidityDisplay{
-font-weight: bold;
-margin-bottom: 25px;
-}
-.descDisplay{
-font-size: 2rem;
-font-style: italic;
-font-weight: bold;
-}
-.weatherEmoji{
-margin: 0;
-font-size: 7.5rem;
-}
-.errorDisplay{
-    font-size: 2.5rem;
+
+.cityDisplay {
     font-weight: bold;
-    color: hsla(0,0%,0.75);
+    letter-spacing: -1px;
+}
+
+.tempDisplay {
+    font-size: 4.5rem; /* Increased for hierarchy */
+    font-weight: 800;
+    /* Using a deep plum instead of gray to match the purple background */
+    color: #5b3a63; 
+    margin-bottom: 10px;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.humidityDisplay {
+    font-weight: 500;
+    margin-bottom: 25px;
+    color: #7a5c7d;
+    text-transform: uppercase;
+    font-size: 0.9rem;
+    letter-spacing: 1px;
+}
+
+.descDisplay {
+    font-size: 1.8rem;
+    font-style: italic;
+    font-weight: 400;
+    color: #4a304d;
+    opacity: 0.9;
+}
+
+.weatherEmoji {
+    margin: 10px 0;
+    font-size: 6.5rem;
+    /* Adds a soft glow behind the emoji */
+    filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));
+}
+
+.errorDisplay {
+    font-size: 1.5rem;
+    font-weight: bold;
+    color: #d9534f; 
+}
+
+.weatherEmoji {
+    font-size: 7.5rem;
+    margin: 20px 0;
+    display: block;
+    filter: drop-shadow(0 12px 12px rgba(74, 48, 77, 0.2));
+    filter: saturate(0.9) brightness(1.05);
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.4);
+    animation: float 4s ease-in-out infinite;
+    position: relative;
+    z-index: 2;
+    cursor: pointer;
+}
+
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
+}
+@media (max-width: 480px) {
+    body {
+        background: linear-gradient(to bottom, #ffd3e1 0%, #c9a0dc 100%);
+    }
+
+    .cityInput {
+        width: 100%;
+        max-width: 250px;
+    }
+
+    .Card {
+        min-width: 90%;
+        padding: 30px 15px; 
+    }
+    h1 {
+        font-size: 1.8rem;
+        margin-bottom: 15px;
+    }
+
+    .tempDisplay {
+        font-size: 3rem;
+    }
+
+    .descDisplay {
+        font-size: 1.4rem;
+    }
+
+    .weatherEmoji {
+        font-size: 5rem;
+        margin: 10px 0;
+    }
+
+    .humidityDisplay {
+        font-size: 0.8rem;
+        margin-bottom: 15px;
+    }
+}
+@keyframes float {
+    0% { transform: translateY(0px); }
+    50% { transform: translateY(-10px); }
+    100% { transform: translateY(0px); }
 }
