@@ -3,20 +3,60 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Weather App</title>
+    <title>Weather App - Discover Weather Worldwide</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="./weatherApp.css">
 </head>
 <body>
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="logo">
+                <img src="" alt="mop">
+                <span class="logo-text">africWeat</span>
+            </div>
+            <form class="weatherForm">
+                <input type="text" class="navSearchInput" placeholder="Enter City">
+                <button type="submit"> Get Weather</button>
+                <div class="autocomplete-dropdown" style="display: none;"></div>
+            </form>
 
+            <div class="location-indicator">
+                <i class="fa-solid fa-globe"></i>
+                <span class="location-code"></span>
+                <span class="location-tooltip"></span>
+            </div>
+        </div>
+    </header>
+    <section class="hero">
+        <h1 class="hero-title">Discover Weather Worldwide</h1>
+        <p class="hero-subtitle">Get real-time weather updates and explore nearby locations</p>
+    </section>
+    <section class="main-weather-section">
+        <div class="Card" style="display: none;">
+        </div>
+    </section>
+    <section class="related-locations-section" style="display: none;">
+        <h2 class="section-title">Nearby Locations</h2>
+        <div class="locations-grid">
+        </div>
+    </section>
+    <section class="weather-tips-section" style="display: none;">
+        <div class="tips-container">
+            <h3 class="tips-title">
+                <i class="fa-solid fa-lightbulb"></i>
+                Weather Tips
+            </h3>
+            <div class="tips-content">
+            </div>
+        </div>
+    </section>
+    <footer class="footer">
+        <div class="footer-content">
+            <h3>Made by Feranmi | Powered by OpenWeatherMap</h3>
+            <h3 class="footer-year">© 2025</h3>
+        </div>
+    </footer>
 
-
-
-    <form class="weatherForm">
-        <input type="text" class="cityInput" placeholder="Enter City">
-        <button type="submit"> Get Weather</button>
-    </form>
-    <div class="Card" style="display: none;">
-    </div>
     <script src="./weatherApp.js"></script>
 </body>
 </html>
