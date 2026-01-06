@@ -51,11 +51,9 @@ body {
     border-radius: 25px;
     box-shadow: 0 4px 15px var(--shadow-color);
 }
-
-/* Nav Search Input */
 .nav-search {
     flex: 1;
-    max-width: 400px; /* Reduced from 500px */
+    max-width: 400px;
     position: relative;
 }
 
@@ -68,14 +66,12 @@ body {
     outline: none;
     transition: all 0.3s ease;
 }
-
-/* Location Indicator */
 .location-indicator {
     flex: 0 0 auto;
     display: flex;
     align-items: center;
-    gap: 6px; /* Reduced from 8px */
-    padding: 6px 12px; /* Reduced from 8px 15px */
+    gap: 6px;
+    padding: 6px 12px; 
     background: rgba(255, 255, 255, 0.4);
     backdrop-filter: blur(8px);
     border-radius: 20px;
@@ -84,12 +80,12 @@ body {
 }
 
 .location-indicator i {
-    font-size: 1.1rem; /* Reduced from 1.2rem */
+    font-size: 1.1rem; 
     color: var(--accent-color);
 }
 
 .location-code {
-    font-size: 0.9rem; /* Reduced from 0.95rem */
+    font-size: 0.9rem; 
     font-weight: 700;
     color: var(--text-primary);
     letter-spacing: 1px;
@@ -119,8 +115,6 @@ body {
     -webkit-text-fill-color: transparent;
     transition: letter-spacing 0.3s ease;
 }
-
-/* Hover polish */
 .logo:hover .logo-img {
     transform: rotate(-4deg) scale(1.05);
 }
@@ -128,8 +122,6 @@ body {
 .logo:hover .logo-text {
     letter-spacing: -0.3px;
 }
-
-/* Nav Search Input */
 .nav-search {
     flex: 1;
     max-width: 500px;
@@ -159,8 +151,6 @@ body {
     background: rgba(255, 255, 255, 0.8);
     box-shadow: 0 4px 12px var(--shadow-color);
 }
-
-/* Autocomplete Dropdown */
 .autocomplete-dropdown {
     position: absolute;
     top: 100%;
@@ -190,8 +180,6 @@ body {
 .autocomplete-item:last-child {
     border-bottom: none;
 }
-
-/* Location Indicator (Globe + Code) */
 .location-indicator {
     flex: 0 0 auto;
     display: flex;
@@ -220,8 +208,6 @@ body {
     color: var(--text-primary);
     letter-spacing: 1px;
 }
-
-/* Location Tooltip */
 .location-tooltip {
     position: absolute;
     bottom: -35px;
@@ -240,10 +226,6 @@ body {
 .location-indicator:hover .location-tooltip {
     opacity: 1;
 }
-
-/* ========================================
-   HERO SECTION
-======================================== */
 .hero {
     text-align: center;
     padding: 80px 20px 60px;
@@ -266,20 +248,12 @@ body {
     font-weight: 400;
     opacity: 0.9;
 }
-
-/* ========================================
-   MAIN WEATHER CARD
-======================================== */
 .main-weather-section {
     display: flex;
     justify-content: center;
     padding: 20px;
     margin-bottom: 40px;
 }
-
-/* ========================================
-   UPDATED CARD LAYOUT WITH NEARBY LOCATIONS INSIDE
-======================================== */
 .Card {
     background: var(--card-bg);
     backdrop-filter: blur(15px);
@@ -290,11 +264,9 @@ body {
     width: 100%;
     box-shadow: 0 10px 40px var(--shadow-color);
     display: flex;
-    flex-direction: column; /* Changed from flex to column layout */
+    flex-direction: column;
     gap: 30px;
 }
-
-/* Weather content container */
 .weather-content {
     display: grid;
     grid-template-columns: 1fr auto 1fr;
@@ -302,8 +274,6 @@ body {
     gap: 20px;
     align-items: center;
 }
-
-/* City (Top center header) */
 .cityDisplay {
     grid-column: 1 / -1;
     text-align: center;
@@ -315,7 +285,6 @@ body {
     color: white;
 }
 
-/* Temperature (Left side) */
 .tempDisplay {
     grid-column: 1;
     grid-row: 2;
@@ -327,7 +296,6 @@ body {
     color: white;
 }
 
-/* Weather icon (Center) */
 .weatherEmoji {
     grid-column: 2;
     grid-row: 2;
@@ -337,7 +305,6 @@ body {
     filter: drop-shadow(0 10px 25px rgba(0, 0, 0, 0.6));
 }
 
-/* Weather details (Right side) */
 .weather-details {
     grid-column: 3;
     grid-row: 2;
@@ -361,7 +328,6 @@ body {
     letter-spacing: 0.5px;
 }
 
-/* Nearby Locations Section inside Card */
 .nearby-locations-container {
     grid-column: 1 / -1;
     grid-row: 3;
@@ -377,8 +343,6 @@ body {
     margin-bottom: 20px;
     text-align: center;
 }
-
-/* Compact location grid for inside card */
 .nearby-locations-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -403,7 +367,6 @@ body {
     border-radius: 10px;
 }
 
-/* Compact location cards */
 .nearby-location-card {
     background: rgba(255, 255, 255, 0.1);
     backdrop-filter: blur(10px);
@@ -445,9 +408,6 @@ body {
     font-weight: 700;
     color: white;
 }
-/* ========================================
-   WEATHER TIPS SECTION
-======================================== */
 .weather-tips-section {
     max-width: 900px;
     margin: 0 auto 60px;
@@ -540,9 +500,6 @@ body {
     font-weight: 700;
 }
 
-/* ========================================
-   FOOTER
-======================================== */
 .footer {
     margin-top: auto;
     background: rgba(0, 0, 0, 0.05);
@@ -578,9 +535,6 @@ body {
     opacity: 0.7;
 }
 
-/* ========================================
-   FORM STYLES
-======================================== */
 .weatherForm{
     margin: 20px;
 }
@@ -628,10 +582,6 @@ button[type="submit"]:hover{
     box-shadow: 0 6px 20px rgba(157, 111, 184, 0.5);
 }
 
-/* ========================================
-   RESPONSIVE ADJUSTMENTS FOR CARD
-======================================== */
-
 @media (max-width: 768px) {
     .Card {
         padding: 25px;
@@ -671,8 +621,6 @@ button[type="submit"]:hover{
         grid-template-columns: repeat(2, 1fr);
         gap: 12px;
     }
-    
-    /* Mobile adjustments for other elements */
     .hero-title {
         font-size: 2.5rem;
     }
@@ -726,11 +674,6 @@ button[type="submit"]:hover{
         font-size: 1rem;
     }
 }
-/* ========================================
-   RESPONSIVE ADJUSTMENTS FOR ALL DEVICES
-======================================== */
-
-/* Tablet styles (768px - 1024px) */
 @media (max-width: 1024px) {
     .hero-title {
         font-size: 2.8rem;
@@ -757,8 +700,6 @@ button[type="submit"]:hover{
         grid-template-columns: repeat(auto-fit, minmax(110px, 1fr));
     }
 }
-
-/* Mobile landscape and small tablets (481px - 768px) */
 @media (max-width: 768px) {
     .navbar {
         top: 10px;
@@ -774,17 +715,15 @@ button[type="submit"]:hover{
         justify-content: space-between;
         align-items: center;
     }
-    
-    /* FIXED: Keep logo and search on same line */
     .logo {
         order: 1;
-        flex: 0 1 auto; /* Changed from 1 1 100% */
+        flex: 0 1 auto; 
         justify-content: flex-start;
     }
     
     .logo-text {
         font-size: 1.5rem;
-        white-space: nowrap; /* Prevent logo text from wrapping */
+        white-space: nowrap; 
     }
     
     .location-indicator {
@@ -796,8 +735,8 @@ button[type="submit"]:hover{
         order: 3;
         flex: 1 1 auto;
         min-width: 200px;
-        max-width: 400px; /* Limit maximum width */
-        margin-left: 15px; /* Add spacing from logo */
+        max-width: 400px; 
+        margin-left: 15px; 
     }
     
     .navSearchInput {
@@ -884,7 +823,6 @@ button[type="submit"]:hover{
     }
 }
 
-/* Mobile portrait (320px - 480px) */
 @media (max-width: 480px) {
     .navbar {
         top: 5px;
@@ -894,27 +832,25 @@ button[type="submit"]:hover{
     
     .nav-container {
         flex-direction: row;
-        flex-wrap: nowrap; /* Changed from wrap to nowrap for better control */
+        flex-wrap: nowrap;
         padding: 12px;
         border-radius: 20px;
         gap: 10px;
         justify-content: space-between;
         align-items: center;
     }
-    
-    /* FIXED: Stack items differently for very small screens */
     .logo {
         order: 1;
-        flex: 0 1 auto; /* Allow to shrink but not take full width */
+        flex: 0 1 auto;
         justify-content: flex-start;
-        min-width: 80px; /* Prevent logo from getting too small */
+        min-width: 80px; 
     }
     
     .logo-text {
         font-size: 1.4rem;
         white-space: nowrap;
         overflow: hidden;
-        text-overflow: ellipsis; /* Add ellipsis if text is too long */
+        text-overflow: ellipsis; 
     }
     
     .location-indicator {
@@ -934,7 +870,7 @@ button[type="submit"]:hover{
     .nav-search {
         order: 2;
         flex: 1 1 auto;
-        min-width: 0; /* Reset min-width */
+        min-width: 0; 
         max-width: none;
         margin-left: 0;
     }
@@ -944,8 +880,6 @@ button[type="submit"]:hover{
         padding: 9px 14px;
         font-size: 0.85rem;
     }
-    
-    /* Alternative layout for very small screens if needed */
     @media (max-width: 400px) {
         .nav-container {
             flex-wrap: wrap;
@@ -1084,8 +1018,6 @@ button[type="submit"]:hover{
         font-size: 0.9rem;
     }
 }
-
-/* Extra small devices (max 360px) */
 @media (max-width: 360px) {
     .nav-container {
         gap: 8px;
