@@ -1,4 +1,3 @@
-
 const weatherThemes = {
     default: {
         background: 'linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 100%)',
@@ -12,15 +11,14 @@ const weatherThemes = {
         shadowColor: 'rgba(74, 63, 53, 0.15)'
     },
     sunny: {
-  background: 'linear-gradient(135deg, #ffb347 0%, #ffcc33 45%, #ff9f1c 100%)',
-  textPrimary: '#2b1d0e',
-  textSecondary: '#4a331a',
-  accentColor: '#ff8c1a',
-  buttonBg: 'linear-gradient(135deg, #ff9f1c 0%, #ff7a00 100%)',
-  buttonHover: 'linear-gradient(135deg, #ff7a00 0%, #e66400 100%)',
-  shadowColor: 'rgba(255, 140, 26, 0.35)'
-},
-
+        background: 'linear-gradient(135deg, #ffb347 0%, #ffcc33 45%, #ff9f1c 100%)',
+        textPrimary: '#2b1d0e',
+        textSecondary: '#4a331a',
+        accentColor: '#ff8c1a',
+        buttonBg: 'linear-gradient(135deg, #ff9f1c 0%, #ff7a00 100%)',
+        buttonHover: 'linear-gradient(135deg, #ff7a00 0%, #e66400 100%)',
+        shadowColor: 'rgba(255, 140, 26, 0.35)'
+    },
     cloudy: {
         background: 'linear-gradient(135deg, #d4dce6 0%, #c5d0db 100%)',
         cardBg: 'rgba(245, 248, 250, 0.85)',
@@ -113,7 +111,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 // API & DOM ELEMENTS
-
 const apiKey = "163f018a71acb350b1a60cc0df917d22";
 const card = document.querySelector(".Card");
 const navSearchInput = document.querySelector(".navSearchInput");
@@ -122,6 +119,168 @@ const weatherIcon = document.createElement("img");
 
 weatherIcon.classList.add("weatherEmoji");
 let searchTimeout;
+
+// ========================================
+// WEATHER TIPS DATABASE
+// ========================================
+
+const weatherTips = {
+    sunny: [
+        "Stay hydrated, drink water every 2 hours",
+        "Apply SPF 30+ sunscreen if going outside",
+        "Avoid direct sun between 12pm - 3pm",
+        "Wear light, breathable clothing",
+        "Seek shade when possible"
+    ],
+    cloudy: [
+        "Good day for outdoor activities",
+        "UV rays can still penetrate clouds - consider sunscreen",
+        "Perfect weather for a walk or exercise",
+        "Keep a light jacket handy"
+    ],
+    rainy: [
+        "Carry an umbrella or raincoat",
+        "Drive carefully - roads may be slippery",
+        "Avoid flooded areas",
+        "Perfect day for indoor activities",
+        "Keep electronics dry"
+    ],
+    stormy: [
+        "Stay indoors if possible",
+        "Avoid using electrical appliances during lightning",
+        "Stay away from windows",
+        "Do not take shelter under trees",
+        "Emergency numbers should be handy"
+    ],
+    snow: [
+        "Bundle up in layers",
+        "Wear waterproof boots",
+        "Drive slowly and carefully",
+        "Watch for icy patches",
+        "Keep warm beverages handy"
+    ],
+    default: [
+        "Check weather updates regularly",
+        "Dress appropriately for the conditions",
+        "Stay safe and prepared"
+    ]
+};
+
+// Function to get tips based on weather theme
+function getTipsForWeather(themeName) {
+    return weatherTips[themeName] || weatherTips.default;
+}
+
+// ========================================
+// RELATED LOCATIONS HELPER FUNCTIONS
+// ========================================
+
+// Fetch weather for multiple locations
+async function fetchMultipleWeatherData(locations) {
+    const weatherPromises = locations.map(async (location) => {
+        try {
+            const data = await getweatherData(location);
+            return {
+                name: data.name,
+                temp: (data.main.temp - 273.15).toFixed(1),
+                condition: data.weather[0].main,
+                icon: getWeatherIcon(data.weather[0].id),
+                fullData: data
+            };
+        } catch (error) {
+            console.error(`Error fetching weather for ${location}:`, error);
+            return null;
+        }
+    });
+    
+    const results = await Promise.all(weatherPromises);
+    return results.filter(result => result !== null);
+}
+async function displayRelatedLocations(locations) {
+    const relatedSection = document.querySelector('.related-locations-section');
+    const locationsGrid = document.querySelector('.locations-grid');
+    if (locations.length === 0) {
+        relatedSection.style.display = 'none';
+        return;
+    }
+    locationsGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: var(--text-secondary);">Loading nearby locations...</p>';
+    relatedSection.style.display = 'block';
+    const weatherData = await fetchMultipleWeatherData(locations);
+    locationsGrid.innerHTML = '';
+    weatherData.forEach(location => {
+        const locationCard = document.createElement('div');
+        locationCard.classList.add('location-card');
+        const icon = document.createElement('img');
+        icon.src = location.icon;
+        icon.style.width = '50px';
+        icon.style.height = '50px';
+        icon.style.margin = '10px 0'; 
+        locationCard.innerHTML = `
+            <div class="location-card-name">${location.name}</div>
+            <div class="location-card-temp">${location.temp}°C</div>
+        `;
+        locationCard.insertBefore(icon, locationCard.querySelector('.location-card-temp'));
+        locationCard.addEventListener('click', async () => {
+            await searchWeather(location.name);
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+        locationsGrid.appendChild(locationCard);
+    });
+}
+function displayWeatherTips(themeName) {
+    const tipsSection = document.querySelector('.weather-tips-section');
+    const tipsContent = document.querySelector('.tips-content');
+    if (!tipsSection || !tipsContent) {
+        console.error('Tips section not found in HTML');
+        return;
+    }
+    const tips = getTipsForWeather(themeName);
+    tipsContent.innerHTML = '';
+    tips.forEach(tip => {
+        const tipItem = document.createElement('div');
+        tipItem.classList.add('tip-item');
+        tipItem.textContent = tip;
+        tipsContent.appendChild(tipItem);
+    });
+    tipsSection.style.display = 'block';
+}
+
+
+
+// Helper function to get related cities based on country
+async function getRelatedCitiesForCountry(countryCode, currentCity) {
+    // Hardcoded major cities for popular countries
+   const majorCitiesByCountry = {
+  'NG': ['Lagos','Abuja','Kano','Ibadan','Port Harcourt','Benin City','Kaduna','Enugu','Onitsha','Owerri','Aba','Uyo','Calabar','Akure','Ado-Ekiti','Ilorin','Ogbomosho','Ife','Ilesa','Oshogbo','Owo','Warri','Asaba','Lokoja','Makurdi','Minna','Yola','Gombe','Bauchi','Jos','Zaria','Katsina','Sokoto','Birnin Kebbi','Gusau','Damaturu','Maiduguri'],
+  'GH': ['Accra','Kumasi','Tamale','Takoradi','Cape Coast','Tema','Koforidua','Sunyani','Ho','Bolgatanga','Wa','Techiman','Obuasi','Nkawkaw','Sefwi Wiawso'],
+  'US': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Seattle','San Francisco','Denver','Boston','Miami','Orlando','Tampa','Atlanta','Nashville','Memphis','Detroit','Cleveland','Columbus','Cincinnati','Indianapolis','Milwaukee','Madison','Minneapolis','St Paul','Kansas City','St Louis','Omaha','Lincoln','Des Moines','Iowa City','Ames'],
+  'GB': ['London','Manchester','Birmingham','Liverpool','Leeds','Glasgow','Edinburgh','Bristol','Bath','Oxford','Cambridge','Brighton','Reading','Milton Keynes','Leicester','Nottingham','Derby','Sheffield','York','Hull','Newcastle','Sunderland','Middlesbrough','Durham','Carlisle','Preston','Blackpool','Lancaster','Chester','Wrexham','Cardiff','Swansea','Newport'],
+  'CA': ['Toronto','Vancouver','Montreal','Calgary','Ottawa','Edmonton','Quebec City','Winnipeg','Hamilton','Mississauga','Brampton','Oakville','Burlington','Markham','Richmond Hill','Vaughan','Scarborough','North York','Surrey','Burnaby','Richmond','Coquitlam','Langley','Abbotsford','Victoria','Nanaimo','Kelowna'],
+  'KE': ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi','Kitale','Machakos','Athi River','Naivasha','Nyeri','Muranga','Embu','Meru','Isiolo','Nanyuki','Garissa','Wajir','Mandera'],
+  'ZA': ['Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein','East London','Nelspruit','Polokwane','Rustenburg','Klerksdorp','Welkom','Kimberley','Upington','George','Mossel Bay','Knysna','Stellenbosch','Paarl','Franschhoek'],
+  'EG': ['Cairo','Alexandria','Giza','Shubra El-Kheima','Port Said','Suez','Luxor','Aswan','Hurghada','Sharm El-Sheikh','Mansoura','Tanta','Zagazig','Ismailia','Damietta','Beni Suef','Minya','Sohag','Qena'],
+  'FR': ['Paris','Marseille','Lyon','Toulouse','Nice','Nantes','Strasbourg','Bordeaux','Lille','Rouen','Reims','Metz','Nancy','Dijon','Besancon','Clermont-Ferrand','Grenoble','Annecy','Chambery','Aix-en-Provence','Avignon','Arles','Montpellier','Perpignan'],
+  'DE': ['Berlin','Hamburg','Munich','Cologne','Frankfurt','Stuttgart','Dusseldorf','Dortmund','Essen','Bochum','Bonn','Aachen','Leipzig','Dresden','Chemnitz','Magdeburg','Halle','Nuremberg','Erlangen','Regensburg','Augsburg','Freiburg','Heidelberg','Mannheim','Karlsruhe'],
+  'IT': ['Rome','Milan','Naples','Turin','Palermo','Genoa','Bologna','Florence','Pisa','Siena','Lucca','Venice','Verona','Padua','Vicenza','Trieste','Udine','Trento','Bolzano','Brescia','Bergamo','Como','Lecco'],
+  'ES': ['Madrid','Barcelona','Valencia','Seville','Zaragoza','Malaga','Murcia','Bilbao','San Sebastian','Vitoria','Pamplona','Logrono','Santander','Oviedo','Gijon','Leon','Salamanca','Valladolid','Toledo','Cuenca','Albacete','Alicante','Elche','Benidorm'],
+  'CN': ['Beijing','Shanghai','Guangzhou','Shenzhen','Chengdu','Hangzhou','Wuhan','Xian','Nanjing','Suzhou','Wuxi','Changzhou','Kunshan','Tianjin','Qingdao','Jinan','Yantai','Dalian','Shenyang','Harbin','Changchun','Hohhot','Baotou'],
+  'JP': ['Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo','Fukuoka','Kobe','Himeji','Nara','Uji','Hiroshima','Okayama','Kurashiki','Takamatsu','Matsuyama','Kochi','Niigata','Kanazawa'],
+  'IN': ['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Surat','Vadodara','Rajkot','Gandhinagar','Jaipur','Jodhpur','Udaipur','Ajmer','Bikaner','Indore','Bhopal','Gwalior','Jabalpur','Lucknow','Kanpur','Agra','Varanasi','Prayagraj'],
+  'AU': ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Canberra','Hobart','Launceston','Geelong','Ballarat','Bendigo','Shepparton','Albury','Wagga Wagga','Newcastle','Wollongong','Shellharbour'],
+  'BR': ['Sao Paulo','Rio de Janeiro','Brasilia','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Campinas','Santos','Ribeirao Preto','Sorocaba','Guarulhos','Osasco','Niteroi','Petropolis','Nova Iguacu'],
+  'MX': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','Leon','Juarez','Zapopan','Aguascalientes','Querétaro','San Luis Potosi','Torreon','Saltillo','Chihuahua','Hermosillo','Culiacan','Mazatlan','Los Mochis']
+};
+
+    
+    // Get cities for this country
+    let cities = majorCitiesByCountry[countryCode] || [];
+    
+    // Filter out current city
+    cities = cities.filter(city => city.toLowerCase() !== currentCity.toLowerCase());
+    
+    // Return up to 8 cities
+    return cities.slice(0, 8);
+}
 
 // AUTOCOMPLETE SEARCH
 navSearchInput.addEventListener("input", async (e) => {
@@ -202,38 +361,7 @@ function rankAndFilterLocations(locations, query) {
             'AS', 'AU', 'CK', 'FJ', 'PF', 'GU', 'KI', 'MH', 'FM', 'NR', 'NC', 'NZ', 'NU',
             'NF', 'MP', 'PW', 'PG', 'PN', 'WS', 'SB', 'TK', 'TO', 'TV', 'VU', 'WF'
         ],
-        Antarctica: [
-            'AQ'
-        ]
-    };
-    const countryNameToCode = {
-    'Nigeria': 'NG', 'Ghana': 'GH', 'Kenya': 'KE', 'South Africa': 'ZA', 'Egypt': 'EG',
-    'United States': 'US', 'United States of America': 'US', 'Canada': 'CA', 'Mexico': 'MX',
-    'United Kingdom': 'GB', 'France': 'FR', 'Germany': 'DE', 'Italy': 'IT', 'Spain': 'ES',
-    'China': 'CN', 'Japan': 'JP', 'India': 'IN', 'Australia': 'AU', 'Brazil': 'BR',
-    'Argentina': 'AR', 'Chile': 'CL', 'Colombia': 'CO', 'Peru': 'PE', 'Venezuela': 'VE',
-    'Russia': 'RU', 'Ukraine': 'UA', 'Poland': 'PL', 'Netherlands': 'NL', 'Belgium': 'BE',
-    'Sweden': 'SE', 'Norway': 'NO', 'Finland': 'FI', 'Denmark': 'DK', 'Switzerland': 'CH',
-    'Turkey': 'TR', 'Saudi Arabia': 'SA', 'United Arab Emirates': 'AE', 'Israel': 'IL',
-    'South Korea': 'KR', 'Singapore': 'SG', 'Thailand': 'TH', 'Malaysia': 'MY', 'Indonesia': 'ID',
-    'New Zealand': 'NZ', 'Pakistan': 'PK', 'Bangladesh': 'BD', 'Vietnam': 'VN', 'Philippines': 'PH',
-    'Morocco': 'MA', 'Algeria': 'DZ', 'Tunisia': 'TN', 'Libya': 'LY', 'Sudan': 'SD',
-    'Ethiopia': 'ET', 'Uganda': 'UG', 'Tanzania': 'TZ', 'Angola': 'AO', 'Zimbabwe': 'ZW',
-    'Iraq': 'IQ', 'Iran': 'IR', 'Qatar': 'QA', 'Oman': 'OM', 'Kuwait': 'KW', 'Bahrain': 'BH',
-    'Nepal': 'NP', 'Sri Lanka': 'LK', 'Myanmar': 'MM', 'Cambodia': 'KH', 'Laos': 'LA',
-    'North Korea': 'KP', 'Mongolia': 'MN', 'Hong Kong': 'HK', 'Taiwan': 'TW',
-    'Greece': 'GR', 'Portugal': 'PT', 'Ireland': 'IE', 'Austria': 'AT', 'Czech Republic': 'CZ',
-    'Hungary': 'HU', 'Romania': 'RO', 'Bulgaria': 'BG', 'Slovakia': 'SK', 'Slovenia': 'SI',
-    'Croatia': 'HR', 'Iceland': 'IS', 'Luxembourg': 'LU', 'Liechtenstein': 'LI', 'Estonia': 'EE',
-    'Latvia': 'LV', 'Lithuania': 'LT', 'Belarus': 'BY', 'Serbia': 'RS', 'Bosnia and Herzegovina': 'BA',
-    'North Macedonia': 'MK', 'Montenegro': 'ME', 'Albania': 'AL', 'Moldova': 'MD', 'Kosovo': 'XK',
-    'Syria': 'SY', 'Jordan': 'JO', 'Lebanon': 'LB', 'Yemen': 'YE', 'Afghanistan': 'AF',
-    'Bhutan': 'BT', 'Maldives': 'MV', 'Brunei': 'BN', 'Fiji': 'FJ', 'Papua New Guinea': 'PG',
-    'Samoa': 'WS', 'Tonga': 'TO', 'Vanuatu': 'VU', 'Solomon Islands': 'SB', 'Mauritius': 'MU',
-    'Seychelles': 'SC', 'Namibia': 'NA', 'Botswana': 'BW', 'Mozambique': 'MZ', 'Lesotho': 'LS',
-    'Eswatini': 'SZ', 'Cameroon': 'CM', 'Senegal': 'SN', 'Ivory Coast': 'CI', 'Gabon': 'GA',
-    'Anguilla': 'AI', 'Bahamas': 'BS', 'Barbados': 'BB', 'Belize': 'BZ', 'Jamaica': 'JM',
-    'Trinidad and Tobago': 'TT', 'Haiti': 'HT', 'Dominican Republic': 'DO', 'Cuba': 'CU'
+        Antarctica: ['AQ']
     };
     
     const allCountryCodes = new Set(Object.values(countriesByContinent).flat());
@@ -255,12 +383,7 @@ function rankAndFilterLocations(locations, query) {
     const smallerLocations = rankedLocations.filter(location => !majorLocations.includes(location)).slice(0, 5);
 
     return [...majorLocations, ...smallerLocations].slice(0, 10);
-
 }
-
-
-
-
 
 function displaySuggestions(suggestions) {
     autocompleteDropdown.innerHTML = "";
@@ -304,9 +427,6 @@ document.addEventListener("click", (e) => {
         hideAutocomplete();
     }
 });
-
-// MAIN SEARCH FUNCTION
-
 async function searchWeather(city) {
     document.querySelector(".hero").style.display = "none";
 
@@ -317,13 +437,17 @@ async function searchWeather(city) {
         const themeName = getThemeFromWeather(weatherCondition);
         applyTheme(themeName);
         updateLocationIndicator(city, weatherData.sys.country);
+        const countryCode = weatherData.sys.country;
+        const cityName = weatherData.name;
+        const relatedCities = await getRelatedCitiesForCountry(countryCode, cityName);
+        await displayRelatedLocations(relatedCities);
+        displayWeatherTips(themeName);
+        
     } catch (error) {
         console.error(error);
         displayError(error.message || "Could not fetch weather data");
     }
 }
-
-
 function updateLocationIndicator(city, countryCode) {
     const locationCodeElement = document.querySelector(".location-code");
     const locationTooltipElement = document.querySelector(".location-tooltip");
@@ -331,9 +455,6 @@ function updateLocationIndicator(city, countryCode) {
     locationCodeElement.textContent = shortCode;
     locationTooltipElement.textContent = `${city}, ${countryCode}`;
 }
-
-// WEATHER API
-
 async function getweatherData(city) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
     const response = await fetch(apiUrl);
@@ -377,8 +498,6 @@ async function displayweatherInfo(data) {
     card.appendChild(humidityDisplay);
 }
 
-
-
 function getWeatherIcon(weatherId) {
     if (weatherId >= 200 && weatherId < 300) return "/icons/realthunder.svg";
     else if (weatherId >= 300 && weatherId < 400) return "/icons/cloudonedrop.svg";
@@ -389,7 +508,17 @@ function getWeatherIcon(weatherId) {
     else if (weatherId >= 801 && weatherId < 810) return "/icons/sunhidingbehindcloud.svg";
     else return "/icons/unknown.svg";
 }
+const scrollBtn = document.getElementById('scrollBtn');
+const locationsGrid = document.getElementById('locationsGrid');
 
+if (scrollBtn && locationsGrid) {
+    scrollBtn.addEventListener('click', () => {
+        locationsGrid.scrollBy({
+            left: 300, 
+            behavior: 'smooth'
+        });
+    });
+}
 
 function displayError(message) {
     const errorDisplay = document.createElement("p");

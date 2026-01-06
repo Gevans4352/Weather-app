@@ -1,6 +1,5 @@
 
 :root {
-    /* DEFAULT THEME - Soft Beige/Cream */
     --bg-primary: linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 100%);
     --bg-secondary: rgba(255, 255, 255, 0.7);
     --card-bg: rgba(255, 250, 245, 0.85);
@@ -29,6 +28,8 @@ body {
     transition: background 1.5s ease, color 0.8s ease;
 }
 
+
+
 .navbar {
     position: sticky;
     top: 15px;
@@ -54,17 +55,7 @@ body {
     box-shadow: 0 4px 15px var(--shadow-color);
 }
 
-.logo {
-    flex: 0 0 auto;
-    min-width: 120px; /* Reduced from 150px */
-}
 
-.logo-text {
-    font-size: 1.3rem; /* Reduced from 1.5rem */
-    font-weight: 700;
-    color: var(--text-primary);
-    letter-spacing: -0.5px;
-}
 
 /* Nav Search Input */
 .nav-search {
@@ -110,17 +101,44 @@ body {
 }
 
 /* Logo Area */
+/* =========================
+   LOGO STYLING (FINAL)
+========================= */
+
 .logo {
-    flex: 0 0 auto;
-    min-width: 150px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+    user-select: none;
 }
 
+
+
 .logo-text {
-    font-size: 1.5rem;
-    font-weight: 700;
+    font-size: 1.6rem;
+    font-weight: 800;
+    letter-spacing: -0.6px;
     color: var(--text-primary);
-    letter-spacing: -0.5px;
+    background: linear-gradient(
+        135deg,
+        var(--text-primary),
+        var(--accent-color)
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    transition: letter-spacing 0.3s ease;
 }
+
+/* Hover polish */
+.logo:hover .logo-img {
+    transform: rotate(-4deg) scale(1.05);
+}
+
+.logo:hover .logo-text {
+    letter-spacing: -0.3px;
+}
+
 
 /* Nav Search Input */
 .nav-search {
@@ -380,14 +398,26 @@ body {
     text-align: center;
     margin-bottom: 30px;
 }
-
 .locations-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+    display: flex;
+    flex-wrap: nowrap;
     gap: 20px;
-    max-width: 100%;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding-bottom: 10px;
+    scroll-behavior: smooth; /* Smooth scrolling */
+    
+    /* HIDE SCROLLBAR */
+    scrollbar-width: none; /* Firefox */
+    -ms-overflow-style: none; /* IE/Edge */
 }
 
+/* HIDE SCROLLBAR for Chrome/Safari */
+.locations-grid::-webkit-scrollbar {
+    display: none;
+}
+
+/* Location Cards */
 .location-card {
     background: var(--card-bg);
     backdrop-filter: blur(12px);
@@ -398,6 +428,8 @@ body {
     cursor: pointer;
     transition: all 0.3s ease;
     box-shadow: 0 4px 15px var(--shadow-color);
+    min-width: 140px;
+    flex-shrink: 0;
 }
 
 .location-card:hover {
@@ -423,10 +455,39 @@ body {
     font-weight: 700;
     color: var(--text-primary);
 }
+/* SCROLL ARROW BUTTON (Right side) */
+.scroll-arrow {
+    position: absolute;
+    right: 30px;
+    top: 50%;
+    transform: translateY(-50%);
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid var(--accent-color);
+    border-radius: 50%;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 15px var(--shadow-color);
+    z-index: 10;
+}
 
-/* ========================================
-   WEATHER TIPS SECTION
-======================================== */
+.scroll-arrow:hover {
+    background: var(--accent-color);
+    transform: translateY(-50%) scale(1.1);
+}
+
+.scroll-arrow i {
+    font-size: 1.5rem;
+    color: var(--text-primary);
+}
+
+.scroll-arrow:hover i {
+    color: white;
+}
 .weather-tips-section {
     max-width: 900px;
     margin: 0 auto 60px;
