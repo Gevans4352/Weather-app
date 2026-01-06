@@ -2,6 +2,7 @@ const weatherThemes = {
     default: {
         background: 'linear-gradient(135deg, #f5e6d3 0%, #e8d5c4 100%)',
         cardBg: 'rgba(255, 250, 245, 0.85)',
+        tipsBg: 'rgba(253, 252, 250, 0.85)', 
         cardBorder: 'rgba(210, 180, 140, 0.3)',
         textPrimary: '#4a3f35',
         textSecondary: '#6b5d52',
@@ -12,6 +13,8 @@ const weatherThemes = {
     },
     sunny: {
         background: 'linear-gradient(135deg, #ffb347 0%, #ffcc33 45%, #ff9f1c 100%)',
+        tipsBg: 'rgba(255, 253, 248, 0.95)',
+        cardBg: 'rgba(182, 180, 177, 0.92)',          
         textPrimary: '#2b1d0e',
         textSecondary: '#4a331a',
         accentColor: '#ff8c1a',
@@ -21,7 +24,8 @@ const weatherThemes = {
     },
     cloudy: {
         background: 'linear-gradient(135deg, #d4dce6 0%, #c5d0db 100%)',
-        cardBg: 'rgba(245, 248, 250, 0.85)',
+        cardBg: 'rgba(165, 177, 185, 0.85)',
+        tipsBg: 'rgba(248, 250, 253, 0.95)', 
         cardBorder: 'rgba(180, 190, 200, 0.3)',
         textPrimary: '#3d4752',
         textSecondary: '#5d6872',
@@ -32,7 +36,8 @@ const weatherThemes = {
     },
     rainy: {
         background: 'linear-gradient(135deg, #5a7a9e 0%, #4a6482 100%)',
-        cardBg: 'rgba(230, 240, 248, 0.85)',
+        cardBg: 'rgba(255, 255, 255, 0.95)',
+        tipsBg: 'rgba(242, 247, 252, 0.95)', 
         cardBorder: 'rgba(90, 122, 158, 0.3)',
         textPrimary: '#2d3e50',
         textSecondary: '#4a5c6e',
@@ -43,7 +48,8 @@ const weatherThemes = {
     },
     stormy: {
         background: 'linear-gradient(135deg, #4a5568 0%, #3a4556 100%)',
-        cardBg: 'rgba(225, 230, 235, 0.85)',
+        cardBg: 'rgba(255, 255, 255, 0.96)',
+        tipsBg: 'rgba(248, 249, 251, 0.96)', 
         cardBorder: 'rgba(74, 85, 104, 0.3)',
         textPrimary: '#1e2936',
         textSecondary: '#3d4752',
@@ -54,7 +60,8 @@ const weatherThemes = {
     },
     snow: {
         background: 'linear-gradient(135deg, #e3f2fd 0%, #d4e7f7 100%)',
-        cardBg: 'rgba(250, 253, 255, 0.85)',
+        cardBg: 'rgba(255, 255, 255, 0.98)',
+        tipsBg: 'rgba(252, 254, 255, 0.98)',
         cardBorder: 'rgba(180, 210, 235, 0.3)',
         textPrimary: '#2c4a62',
         textSecondary: '#4a6882',
@@ -69,8 +76,8 @@ function applyTheme(themeName) {
     const theme = weatherThemes[themeName] || weatherThemes.default;
     const root = document.documentElement;
     root.style.setProperty('--bg-primary', theme.background);
-    root.style.setProperty('--bg-secondary', theme.cardBg);
-    root.style.setProperty('--card-bg', theme.cardBg);
+    root.style.setProperty('--tipsBg', theme.tipsBg);
+    root.style.setProperty('--card-bg', theme.cardBg); 
     root.style.setProperty('--card-border', theme.cardBorder);
     root.style.setProperty('--text-primary', theme.textPrimary);
     root.style.setProperty('--text-secondary', theme.textSecondary);
@@ -115,14 +122,8 @@ const apiKey = "163f018a71acb350b1a60cc0df917d22";
 const card = document.querySelector(".Card");
 const navSearchInput = document.querySelector(".navSearchInput");
 const autocompleteDropdown = document.querySelector(".autocomplete-dropdown");
-const weatherIcon = document.createElement("img");
-
-weatherIcon.classList.add("weatherEmoji");
 let searchTimeout;
 
-// ========================================
-// WEATHER TIPS DATABASE
-// ========================================
 
 const weatherTips = {
     sunny: [
@@ -166,16 +167,10 @@ const weatherTips = {
     ]
 };
 
-// Function to get tips based on weather theme
 function getTipsForWeather(themeName) {
     return weatherTips[themeName] || weatherTips.default;
 }
 
-// ========================================
-// RELATED LOCATIONS HELPER FUNCTIONS
-// ========================================
-
-// Fetch weather for multiple locations
 async function fetchMultipleWeatherData(locations) {
     const weatherPromises = locations.map(async (location) => {
         try {
@@ -196,93 +191,84 @@ async function fetchMultipleWeatherData(locations) {
     const results = await Promise.all(weatherPromises);
     return results.filter(result => result !== null);
 }
-async function displayRelatedLocations(locations) {
-    const relatedSection = document.querySelector('.related-locations-section');
-    const locationsGrid = document.querySelector('.locations-grid');
-    if (locations.length === 0) {
-        relatedSection.style.display = 'none';
+
+async function displayNearbyLocationsInCard(locations) {
+    let nearbyContainer = document.querySelector('.nearby-locations-container');
+    let nearbyGrid = document.getElementById('nearbyLocationsGrid');
+    
+    if (!nearbyContainer) {
+        nearbyContainer = document.createElement('div');
+        nearbyContainer.classList.add('nearby-locations-container');
+        nearbyContainer.innerHTML = `
+            <h3 class="nearby-locations-title">Nearby Locations</h3>
+            <div class="nearby-locations-grid" id="nearbyLocationsGrid">
+                <p style="color: rgba(255,255,255,0.7); text-align: center;">Loading nearby locations...</p>
+            </div>
+        `;
+        card.appendChild(nearbyContainer);
+        nearbyGrid = document.getElementById('nearbyLocationsGrid');
+    }
+    
+    if (!locations || locations.length === 0) {
+        nearbyGrid.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">No nearby locations found</p>';
         return;
     }
-    locationsGrid.innerHTML = '<p style="text-align: center; grid-column: 1/-1; color: var(--text-secondary);">Loading nearby locations...</p>';
-    relatedSection.style.display = 'block';
     const weatherData = await fetchMultipleWeatherData(locations);
-    locationsGrid.innerHTML = '';
+    
+    if (weatherData.length === 0) {
+        nearbyGrid.innerHTML = '<p style="color: rgba(255,255,255,0.7); text-align: center;">No weather data available for nearby locations</p>';
+        return;
+    }
+    nearbyGrid.innerHTML = '';
     weatherData.forEach(location => {
-        const locationCard = document.createElement('div');
-        locationCard.classList.add('location-card');
-        const icon = document.createElement('img');
-        icon.src = location.icon;
-        icon.style.width = '50px';
-        icon.style.height = '50px';
-        icon.style.margin = '10px 0'; 
+        const locationCard = document.createElement("div");
+        locationCard.classList.add("nearby-location-card");
+        
         locationCard.innerHTML = `
-            <div class="location-card-name">${location.name}</div>
-            <div class="location-card-temp">${location.temp}°C</div>
+            <div class="nearby-location-name">${location.name}</div>
+            <div class="nearby-location-temp">${location.temp}°C</div>
         `;
-        locationCard.insertBefore(icon, locationCard.querySelector('.location-card-temp'));
+        
+        const icon = document.createElement("img");
+        icon.src = location.icon;
+        icon.classList.add("nearby-location-icon");
+        locationCard.insertBefore(icon, locationCard.querySelector('.nearby-location-temp'));
+        
         locationCard.addEventListener('click', async () => {
             await searchWeather(location.name);
             window.scrollTo({ top: 0, behavior: 'smooth' });
         });
-        locationsGrid.appendChild(locationCard);
+        
+        nearbyGrid.appendChild(locationCard);
     });
 }
-function displayWeatherTips(themeName) {
-    const tipsSection = document.querySelector('.weather-tips-section');
-    const tipsContent = document.querySelector('.tips-content');
-    if (!tipsSection || !tipsContent) {
-        console.error('Tips section not found in HTML');
-        return;
-    }
-    const tips = getTipsForWeather(themeName);
-    tipsContent.innerHTML = '';
-    tips.forEach(tip => {
-        const tipItem = document.createElement('div');
-        tipItem.classList.add('tip-item');
-        tipItem.textContent = tip;
-        tipsContent.appendChild(tipItem);
-    });
-    tipsSection.style.display = 'block';
-}
 
-
-
-// Helper function to get related cities based on country
 async function getRelatedCitiesForCountry(countryCode, currentCity) {
-    // Hardcoded major cities for popular countries
-   const majorCitiesByCountry = {
-  'NG': ['Lagos','Abuja','Kano','Ibadan','Port Harcourt','Benin City','Kaduna','Enugu','Onitsha','Owerri','Aba','Uyo','Calabar','Akure','Ado-Ekiti','Ilorin','Ogbomosho','Ife','Ilesa','Oshogbo','Owo','Warri','Asaba','Lokoja','Makurdi','Minna','Yola','Gombe','Bauchi','Jos','Zaria','Katsina','Sokoto','Birnin Kebbi','Gusau','Damaturu','Maiduguri'],
-  'GH': ['Accra','Kumasi','Tamale','Takoradi','Cape Coast','Tema','Koforidua','Sunyani','Ho','Bolgatanga','Wa','Techiman','Obuasi','Nkawkaw','Sefwi Wiawso'],
-  'US': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Seattle','San Francisco','Denver','Boston','Miami','Orlando','Tampa','Atlanta','Nashville','Memphis','Detroit','Cleveland','Columbus','Cincinnati','Indianapolis','Milwaukee','Madison','Minneapolis','St Paul','Kansas City','St Louis','Omaha','Lincoln','Des Moines','Iowa City','Ames'],
-  'GB': ['London','Manchester','Birmingham','Liverpool','Leeds','Glasgow','Edinburgh','Bristol','Bath','Oxford','Cambridge','Brighton','Reading','Milton Keynes','Leicester','Nottingham','Derby','Sheffield','York','Hull','Newcastle','Sunderland','Middlesbrough','Durham','Carlisle','Preston','Blackpool','Lancaster','Chester','Wrexham','Cardiff','Swansea','Newport'],
-  'CA': ['Toronto','Vancouver','Montreal','Calgary','Ottawa','Edmonton','Quebec City','Winnipeg','Hamilton','Mississauga','Brampton','Oakville','Burlington','Markham','Richmond Hill','Vaughan','Scarborough','North York','Surrey','Burnaby','Richmond','Coquitlam','Langley','Abbotsford','Victoria','Nanaimo','Kelowna'],
-  'KE': ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi','Kitale','Machakos','Athi River','Naivasha','Nyeri','Muranga','Embu','Meru','Isiolo','Nanyuki','Garissa','Wajir','Mandera'],
-  'ZA': ['Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein','East London','Nelspruit','Polokwane','Rustenburg','Klerksdorp','Welkom','Kimberley','Upington','George','Mossel Bay','Knysna','Stellenbosch','Paarl','Franschhoek'],
-  'EG': ['Cairo','Alexandria','Giza','Shubra El-Kheima','Port Said','Suez','Luxor','Aswan','Hurghada','Sharm El-Sheikh','Mansoura','Tanta','Zagazig','Ismailia','Damietta','Beni Suef','Minya','Sohag','Qena'],
-  'FR': ['Paris','Marseille','Lyon','Toulouse','Nice','Nantes','Strasbourg','Bordeaux','Lille','Rouen','Reims','Metz','Nancy','Dijon','Besancon','Clermont-Ferrand','Grenoble','Annecy','Chambery','Aix-en-Provence','Avignon','Arles','Montpellier','Perpignan'],
-  'DE': ['Berlin','Hamburg','Munich','Cologne','Frankfurt','Stuttgart','Dusseldorf','Dortmund','Essen','Bochum','Bonn','Aachen','Leipzig','Dresden','Chemnitz','Magdeburg','Halle','Nuremberg','Erlangen','Regensburg','Augsburg','Freiburg','Heidelberg','Mannheim','Karlsruhe'],
-  'IT': ['Rome','Milan','Naples','Turin','Palermo','Genoa','Bologna','Florence','Pisa','Siena','Lucca','Venice','Verona','Padua','Vicenza','Trieste','Udine','Trento','Bolzano','Brescia','Bergamo','Como','Lecco'],
-  'ES': ['Madrid','Barcelona','Valencia','Seville','Zaragoza','Malaga','Murcia','Bilbao','San Sebastian','Vitoria','Pamplona','Logrono','Santander','Oviedo','Gijon','Leon','Salamanca','Valladolid','Toledo','Cuenca','Albacete','Alicante','Elche','Benidorm'],
-  'CN': ['Beijing','Shanghai','Guangzhou','Shenzhen','Chengdu','Hangzhou','Wuhan','Xian','Nanjing','Suzhou','Wuxi','Changzhou','Kunshan','Tianjin','Qingdao','Jinan','Yantai','Dalian','Shenyang','Harbin','Changchun','Hohhot','Baotou'],
-  'JP': ['Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo','Fukuoka','Kobe','Himeji','Nara','Uji','Hiroshima','Okayama','Kurashiki','Takamatsu','Matsuyama','Kochi','Niigata','Kanazawa'],
-  'IN': ['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Surat','Vadodara','Rajkot','Gandhinagar','Jaipur','Jodhpur','Udaipur','Ajmer','Bikaner','Indore','Bhopal','Gwalior','Jabalpur','Lucknow','Kanpur','Agra','Varanasi','Prayagraj'],
-  'AU': ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Canberra','Hobart','Launceston','Geelong','Ballarat','Bendigo','Shepparton','Albury','Wagga Wagga','Newcastle','Wollongong','Shellharbour'],
-  'BR': ['Sao Paulo','Rio de Janeiro','Brasilia','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Campinas','Santos','Ribeirao Preto','Sorocaba','Guarulhos','Osasco','Niteroi','Petropolis','Nova Iguacu'],
-  'MX': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','Leon','Juarez','Zapopan','Aguascalientes','Querétaro','San Luis Potosi','Torreon','Saltillo','Chihuahua','Hermosillo','Culiacan','Mazatlan','Los Mochis']
-};
-
-    
-    // Get cities for this country
+    const majorCitiesByCountry = {
+        'NG': ['Lagos','Abuja','Kano','Ibadan','Port Harcourt','Benin City','Kaduna','Enugu','Onitsha','Owerri','Aba','Uyo','Calabar','Akure','Ado-Ekiti','Ilorin','Ogbomosho','Ife','Ilesa','Oshogbo','Owo','Warri','Asaba','Lokoja','Makurdi','Minna','Yola','Gombe','Bauchi','Jos','Zaria','Katsina','Sokoto','Birnin Kebbi','Gusau','Damaturu','Maiduguri'],
+        'GH': ['Accra','Kumasi','Tamale','Takoradi','Cape Coast','Tema','Koforidua','Sunyani','Ho','Bolgatanga','Wa','Techiman','Obuasi','Nkawkaw','Sefwi Wiawso'],
+        'US': ['New York','Los Angeles','Chicago','Houston','Phoenix','Philadelphia','San Antonio','San Diego','Dallas','San Jose','Austin','Seattle','San Francisco','Denver','Boston','Miami','Orlando','Tampa','Atlanta','Nashville','Memphis','Detroit','Cleveland','Columbus','Cincinnati','Indianapolis','Milwaukee','Madison','Minneapolis','St Paul','Kansas City','St Louis','Omaha','Lincoln','Des Moines','Iowa City','Ames'],
+        'GB': ['London','Manchester','Birmingham','Liverpool','Leeds','Glasgow','Edinburgh','Bristol','Bath','Oxford','Cambridge','Brighton','Reading','Milton Keynes','Leicester','Nottingham','Derby','Sheffield','York','Hull','Newcastle','Sunderland','Middlesbrough','Durham','Carlisle','Preston','Blackpool','Lancaster','Chester','Wrexham','Cardiff','Swansea','Newport'],
+        'CA': ['Toronto','Vancouver','Montreal','Calgary','Ottawa','Edmonton','Quebec City','Winnipeg','Hamilton','Mississauga','Brampton','Oakville','Burlington','Markham','Richmond Hill','Vaughan','Scarborough','North York','Surrey','Burnaby','Richmond','Coquitlam','Langley','Abbotsford','Victoria','Nanaimo','Kelowna'],
+        'KE': ['Nairobi','Mombasa','Kisumu','Nakuru','Eldoret','Thika','Malindi','Kitale','Machakos','Athi River','Naivasha','Nyeri','Muranga','Embu','Meru','Isiolo','Nanyuki','Garissa','Wajir','Mandera'],
+        'ZA': ['Johannesburg','Cape Town','Durban','Pretoria','Port Elizabeth','Bloemfontein','East London','Nelspruit','Polokwane','Rustenburg','Klerksdorp','Welkom','Kimberley','Upington','George','Mossel Bay','Knysna','Stellenbosch','Paarl','Franschhoek'],
+        'EG': ['Cairo','Alexandria','Giza','Shubra El-Kheima','Port Said','Suez','Luxor','Aswan','Hurghada','Sharm El-Sheikh','Mansoura','Tanta','Zagazig','Ismailia','Damietta','Beni Suef','Minya','Sohag','Qena'],
+        'FR': ['Paris','Marseille','Lyon','Toulouse','Nice','Nantes','Strasbourg','Bordeaux','Lille','Rouen','Reims','Metz','Nancy','Dijon','Besancon','Clermont-Ferrand','Grenoble','Annecy','Chambery','Aix-en-Provence','Avignon','Arles','Montpellier','Perpignan'],
+        'DE': ['Berlin','Hamburg','Munich','Cologne','Frankfurt','Stuttgart','Dusseldorf','Dortmund','Essen','Bochum','Bonn','Aachen','Leipzig','Dresden','Chemnitz','Magdeburg','Halle','Nuremberg','Erlangen','Regensburg','Augsburg','Freiburg','Heidelberg','Mannheim','Karlsruhe'],
+        'IT': ['Rome','Milan','Naples','Turin','Palermo','Genoa','Bologna','Florence','Pisa','Siena','Lucca','Venice','Verona','Padua','Vicenza','Trieste','Udine','Trento','Bolzano','Brescia','Bergamo','Como','Lecco'],
+        'ES': ['Madrid','Barcelona','Valencia','Seville','Zaragoza','Malaga','Murcia','Bilbao','San Sebastian','Vitoria','Pamplona','Logrono','Santander','Oviedo','Gijon','Leon','Salamanca','Valladolid','Toledo','Cuenca','Albacete','Alicante','Elche','Benidorm'],
+        'CN': ['Beijing','Shanghai','Guangzhou','Shenzhen','Chengdu','Hangzhou','Wuhan','Xian','Nanjing','Suzhou','Wuxi','Changzhou','Kunshan','Tianjin','Qingdao','Jinan','Yantai','Dalian','Shenyang','Harbin','Changchun','Hohhot','Baotou'],
+        'JP': ['Tokyo','Osaka','Kyoto','Yokohama','Nagoya','Sapporo','Fukuoka','Kobe','Himeji','Nara','Uji','Hiroshima','Okayama','Kurashiki','Takamatsu','Matsuyama','Kochi','Niigata','Kanazawa'],
+        'IN': ['Mumbai','Delhi','Bangalore','Hyderabad','Chennai','Kolkata','Pune','Ahmedabad','Surat','Vadodara','Rajkot','Gandhinagar','Jaipur','Jodhpur','Udaipur','Ajmer','Bikaner','Indore','Bhopal','Gwalior','Jabalpur','Lucknow','Kanpur','Agra','Varanasi','Prayagraj'],
+        'AU': ['Sydney','Melbourne','Brisbane','Perth','Adelaide','Gold Coast','Canberra','Hobart','Launceston','Geelong','Ballarat','Bendigo','Shepparton','Albury','Wagga Wagga','Newcastle','Wollongong','Shellharbour'],
+        'BR': ['Sao Paulo','Rio de Janeiro','Brasilia','Salvador','Fortaleza','Belo Horizonte','Manaus','Curitiba','Campinas','Santos','Ribeirao Preto','Sorocaba','Guarulhos','Osasco','Niteroi','Petropolis','Nova Iguacu'],
+        'MX': ['Mexico City','Guadalajara','Monterrey','Puebla','Tijuana','Leon','Juarez','Zapopan','Aguascalientes','Querétaro','San Luis Potosi','Torreon','Saltillo','Chihuahua','Hermosillo','Culiacan','Mazatlan','Los Mochis']
+    };
     let cities = majorCitiesByCountry[countryCode] || [];
-    
-    // Filter out current city
     cities = cities.filter(city => city.toLowerCase() !== currentCity.toLowerCase());
-    
-    // Return up to 8 cities
     return cities.slice(0, 8);
 }
 
-// AUTOCOMPLETE SEARCH
 navSearchInput.addEventListener("input", async (e) => {
     const query = e.target.value.trim();
     clearTimeout(searchTimeout);
@@ -314,15 +300,21 @@ navSearchInput.addEventListener("keypress", async (e) => {
     }
 });
 
+document.querySelector('.weatherForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    const city = navSearchInput.value.trim();
+    if (city) {
+        hideAutocomplete();
+        await searchWeather(city);
+    }
+});
+
 async function fetchLocationSuggestions(query) {
-    const geocodeUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=50&appid=${apiKey}`;
-    
+    const geocodeUrl = `https://api.openweathermap.org/geo/1.0/direct?q=${query}&limit=50&appid=${apiKey}`;   
     const response = await fetch(geocodeUrl);
-    
     if (!response.ok) {
         throw new Error("Could not fetch location suggestions");
     }
-    
     const data = await response.json();
     return rankAndFilterLocations(data, query);
 }
@@ -427,27 +419,20 @@ document.addEventListener("click", (e) => {
         hideAutocomplete();
     }
 });
+
 async function searchWeather(city) {
     document.querySelector(".hero").style.display = "none";
 
     try {
         const weatherData = await getweatherData(city);
-        displayweatherInfo(weatherData);
-        const weatherCondition = weatherData.weather[0].main;
-        const themeName = getThemeFromWeather(weatherCondition);
-        applyTheme(themeName);
-        updateLocationIndicator(city, weatherData.sys.country);
-        const countryCode = weatherData.sys.country;
-        const cityName = weatherData.name;
-        const relatedCities = await getRelatedCitiesForCountry(countryCode, cityName);
-        await displayRelatedLocations(relatedCities);
-        displayWeatherTips(themeName);
+        await displayweatherInfo(weatherData);
         
     } catch (error) {
         console.error(error);
         displayError(error.message || "Could not fetch weather data");
     }
 }
+
 function updateLocationIndicator(city, countryCode) {
     const locationCodeElement = document.querySelector(".location-code");
     const locationTooltipElement = document.querySelector(".location-tooltip");
@@ -455,6 +440,7 @@ function updateLocationIndicator(city, countryCode) {
     locationCodeElement.textContent = shortCode;
     locationTooltipElement.textContent = `${city}, ${countryCode}`;
 }
+
 async function getweatherData(city) {
     const apiUrl = `https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${apiKey}`;
     const response = await fetch(apiUrl);
@@ -470,32 +456,45 @@ async function displayweatherInfo(data) {
         main: { temp, humidity }, 
         weather: [{ description, id }] 
     } = data;
-
     card.textContent = "";
     card.style.display = "flex";
-
+    const weatherContent = document.createElement("div");
+    weatherContent.classList.add("weather-content");
     const cityDisplay = document.createElement("h1");
     const tempDisplay = document.createElement("p");
     const humidityDisplay = document.createElement("p");
     const descDisplay = document.createElement("p");
     const weatherIcon = document.createElement("img");
+    const weatherDetails = document.createElement("div");
+    weatherDetails.classList.add("weather-details");
 
     cityDisplay.textContent = city;
     tempDisplay.textContent = `${(temp - 273.15).toFixed(1)}°C`;
     humidityDisplay.textContent = `Humidity: ${humidity}%`;
     descDisplay.textContent = description;
-    weatherIcon.src = getWeatherIcon(id); 
+    weatherIcon.src = getWeatherIcon(id);
+    
     cityDisplay.classList.add("cityDisplay");
     tempDisplay.classList.add("tempDisplay");
     humidityDisplay.classList.add("humidityDisplay");
     descDisplay.classList.add("descDisplay");
     weatherIcon.classList.add("weatherEmoji");
-
-    card.appendChild(cityDisplay);
-    card.appendChild(weatherIcon);
-    card.appendChild(tempDisplay);
-    card.appendChild(descDisplay);
-    card.appendChild(humidityDisplay);
+    weatherDetails.appendChild(descDisplay);
+    weatherDetails.appendChild(humidityDisplay);
+    weatherContent.appendChild(cityDisplay);
+    weatherContent.appendChild(tempDisplay);
+    weatherContent.appendChild(weatherIcon);
+    weatherContent.appendChild(weatherDetails);
+    card.appendChild(weatherContent);
+    const countryCode = data.sys.country;
+    const cityName = data.name;
+    const relatedCities = await getRelatedCitiesForCountry(countryCode, cityName);
+    await displayNearbyLocationsInCard(relatedCities);
+    const weatherCondition = data.weather[0].main;
+    const themeName = getThemeFromWeather(weatherCondition);
+    applyTheme(themeName);
+    updateLocationIndicator(city, data.sys.country);
+    displayWeatherTips(themeName);
 }
 
 function getWeatherIcon(weatherId) {
@@ -508,16 +507,23 @@ function getWeatherIcon(weatherId) {
     else if (weatherId >= 801 && weatherId < 810) return "/icons/sunhidingbehindcloud.svg";
     else return "/icons/unknown.svg";
 }
-const scrollBtn = document.getElementById('scrollBtn');
-const locationsGrid = document.getElementById('locationsGrid');
 
-if (scrollBtn && locationsGrid) {
-    scrollBtn.addEventListener('click', () => {
-        locationsGrid.scrollBy({
-            left: 300, 
-            behavior: 'smooth'
-        });
+function displayWeatherTips(themeName) {
+    const tipsSection = document.querySelector('.weather-tips-section');
+    const tipsContent = document.querySelector('.tips-content');
+    if (!tipsSection || !tipsContent) {
+        console.error('No tips available right now');
+        return;
+    }
+    const tips = getTipsForWeather(themeName);
+    tipsContent.innerHTML = '';
+    tips.forEach(tip => {
+        const tipItem = document.createElement('div');
+        tipItem.classList.add('tip-item');
+        tipItem.textContent = tip;
+        tipsContent.appendChild(tipItem);
     });
+    tipsSection.style.display = 'block';
 }
 
 function displayError(message) {
