@@ -50,7 +50,7 @@ The application logic is contained within the following structure:
 
 The interface uses a specific color palette to ensure readability while maintaining a unique atmosphere:
 
-* **Background:** A linear split gradient (Pink/White/Purple).
+* **Background:** A linear split gradient (Yellow/White/Purple).
 * **Card:** A peach-to-orange gradient with a backdrop blur filter.
 * **Typography:** Utilizes Deep Plum (#4a304d) for high-contrast readability against warm background tones.
 
