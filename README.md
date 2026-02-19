@@ -38,7 +38,7 @@ cd Weather-app
 
 3. Open `index.html` in your preferred web browser.
 
-## Configuration
+## Configurations!
 
 The application logic is contained within the following structure:
 
